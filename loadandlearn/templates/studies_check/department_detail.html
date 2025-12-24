@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Кафедра: {{ department.name }}</h2>
+<p>Заведующий: {{ department.head_name }}</p>
+
+<hr>
+
+<h3>Список групп кафедры:</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Группа</th>
+            <th>Курс</th>
+            <th>Сокращенное название</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for group in groups %}
+        <tr>
+            <td>{{ group.name }}</td>
+            <td>{{ group.course }}</td>
+            <td>{{ group.code }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">На этой кафедре пока нет зарегистрированных групп.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'studies_check:departments' %}" class="btn btn-secondary">Назад к списку кафедр</a>
+{% endblock %}

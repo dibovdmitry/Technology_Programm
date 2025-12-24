@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load static %}
+<h1>Распределение и учет учебной нагрузки кафедры<br /></h1>
+<br>
+<br>
+{% if is_student %}
+    <h2 class="mb-3">Мои предметы и лабораторные работы</h2>
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 15%;">Предмет</th>
+                <th style="width: 15%;">Преподаватель</th>
+                <th>Лабораторные работы и проверка ИИ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for load in student_subjects %}
+            <tr>
+                <td><strong>{{ load.subject.name }}</strong></td>
+                <td>{{ load.teacher.full_name|default:"Не назначен" }}</td>
+                <td>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for i in lab_range %}
+                        <div class="border p-1 text-center bg-white" style="width: 260px; min-height: 140px; border-color: rgba(0, 0, 0, 0.1);">
+                            <small class="fw-bold">Лаба №{{ i }}</small>
+    
+                            <form action="{% url 'upload_lab' load.id i %}" method="POST" enctype="multipart/form-data" class="mt-1">
+                                {% csrf_token %}
+                                <label class="btn btn-xs btn-outline-primary p-0 w-100" style="font-size: 16px;">
+                                    {% if 0 %}Изменить{% else %}Выбрать файл{% endif %}
+                                    <input type="file" name="lab_file" onchange="this.form.submit()" style="display: none;">
+                                </label>
+                            </form>
+    
+                        <hr class="my-1">
+
+                        {% for lab in student_labs %}
+                            {% if lab.teacher_load_id == load.id and lab.lab_number == i %}
+                                
+                                <span class="badge bg-success mb-1" style="font-size: 24px;">Файл загружен</span>
+                                
+                                {% if lab.ai_grade != None %}
+                                    <div class="text-primary fw-bold" style="font-size: 24px;">Оценка ИИ: {{ lab.ai_grade }}/5</div>
+                                    
+                                    <button type="button" class="btn btn-link p-0 text-decoration-none" style="font-size: 14px;" 
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ lab.ai_review }}">
+                                        Отзыв
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'run_ai_check' lab.id %}" class="btn btn-xs btn-warning w-100 mt-1" style="font-size: 20px;">
+                                        Проверить
+                                    </a>
+                                {% endif %}
+                                
+                            {% endif %}
+                        {% endfor %}
+    
+                        </div>
+                    {% endfor %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% if is_teacher %}
+{% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            {% if "Нагрузка" not in message.message %} {# Скрываем текстовый дубль нагрузки #}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
+    <h2 class="mt-4 mb-3">Отчеты студентов и рецензии ИИ</h2>
+    {% if teacher_load %}
+        {% for load in teacher_load %}
+        <div class="table-responsive mb-5">
+            <table class="table table-sm table-bordered shadow-sm align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th colspan="3">Дисциплина: {{ load.subject.name }} | Группа: {{ load.group.name }}</th>
+                    </tr>
+                </thead>
+                <thead class="table-secondary">
+                    <tr>
+                        <th style="width: 25%;">ФИО Студента</th>
+                        <th style="width: 20%;">Файлы отчетов</th>
+                        <th>Результат проверки ИИ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in load.students_in_group %}
+                    <tr>
+                        <td class="fw-bold">{{ student.full_name }}</td>
+                        <td>
+                            {% for lab in student.labs %}
+                                <div class="mb-1">
+                                    <a href="{{ lab.file_path.url }}" class="btn btn-xs btn-outline-success py-0 px-2" style="font-size: 20px;" download>
+                                        Лаба №{{ lab.lab_number }}
+                                    </a>
+                                </div>
+                            {% empty %}
+                                <span class="text-muted small">Не сдано</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for lab in student.labs %}
+                                <div class="p-1 border-bottom mb-1 bg-light rounded" style="font-size: 20px;">
+                                    <strong>№{{ lab.lab_number }}:</strong> 
+                                    {% if lab.ai_grade %}
+                                        <span class="badge bg-primary">Балл: {{ lab.ai_grade }}</span>
+                                        <span class="text-dark ms-2">{{ lab.ai_review|truncatechars:200 }}</span>
+                                    {% else %}
+                                        <span class="text-muted italic">Ожидает проверки ИИ</span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">У вас пока нет назначенной нагрузки.</div>
+    {% endif %}
+{% endif %}
+<div class="container my-5">
+    {% if not user.is_authenticated %}
+        <div class="bg-dark text-white p-5 rounded-4 shadow-lg text-center">
+            <h1 class="display-5 fw-bold">Добро пожаловать!</h1>
+            <p class="col-md-8 mx-auto lead text-secondary">
+                Программный комплекс праспределения и учета учебной нагрузки кафедры с модулями аналитики и формирования отчётности. 
+                Доступ к предметам, отчетам и рецензиям нейросети открыт только для зарегистрированных студентов и преподавателей.
+            </p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                <a href="{% url 'users:profile' %}" class="btn btn-primary btn-lg px-4 gap-3">Авторизоваться</a>
+                <br>
+                <a href="{% url 'about:about_project' %}">О сайте</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+<br>
+<br>
+<br>
+{% endblock %} 

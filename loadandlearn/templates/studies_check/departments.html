@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load static %}
+    <h2>Название кафедры {{ tag.name }}</h2>
+    Количество групп:&ensp;{{ tag.items.count }}
+    <p><a href="{% url 'studies_check:departments'%}"><b>Все кафедры</b></a></p>
+    {% for dept in page_obj %}
+    <div class="department-card">
+        <h3><a href="{% url 'studies_check:department_detail' dept.slug %}">{{ dept.name }}</a></h3>
+        <p>Заведующий: {{ dept.head_name }}</p>
+
+    </div>
+{% empty %}
+    <p>Кафедры еще не добавлены.</p>
+{% endfor %}
