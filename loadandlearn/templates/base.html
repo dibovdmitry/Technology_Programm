@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+{% load static %}
+<html>
+	<head>
+		<title>TermManager</title>
+		<meta charset="utf-8" />
+		<link rel="icon" href="{% static 'images/Logo.png' %}" >
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<noscript><link rel="stylesheet" href="{% static 'assets/css/noscript.css' %}" /></noscript>
+		<link rel="stylesheet" href="{% static 'assets/css/tablestyle2.css' %}" />
+		<link rel="stylesheet" href="{% static 'assets/css/contest.css' %}" />
+		<link type="text/css" href="{% static 'assets/css/style.css' %}" rel="stylesheet"/>
+		{% block css %}
+		{% endblock %}
+
+	</head>
+
+	<body class="is-preload">
+
+		
+		<!-- Wrapper -->
+			<div id="wrapper">
+				<!-- Header -->
+				<div id="header">
+    <div class="inner">
+        <!-- Logo -->
+        <a href="{% url 'studies_check:home' %}" class="logo">
+            <span class="symbol"><img src="{% static 'images/Logo.png' %}" alt="" /></span><span class="title">TermManager</span>
+        </a>
+        <!-- Nav -->
+        <nav>
+
+            <ul class="actions">
+				<br>
+				<a href="{% url 'users:profile' %}" class="button small">Профиль</a>
+            </ul>
+			<br>
+			 <ul class="actions">
+				 <br>
+				 <a href="{% url 'studies_check:departments' %}" class="button small">Кафедры</a>
+            </ul>
+			<br>
+			{% if perms.studies_check.add_itemtag %}
+			<ul>
+                <a href="{% url 'users:signup' %}" class="button small">Добавить пользователя</a>
+            </ul>
+			{% endif %}
+            <br>
+        </nav>
+    </div>
+</div>
+<!-- Main -->
+	<div id="main">
+		<div class="inner">
+        {% block content %}
+
+        {% endblock %}
+		</div>
+	</div>
+	<!-- Footer -->
+	<!-- {% include 'includes/footer.html' %}-->
+	</div>
+	<!-- Scripts -->
+ 	<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+	<script src="{% static 'assets/js/browser.min.js' %}"></script>
+	<script src="{% static 'assets/js/breakpoints.min.js' %}"></script>
+	<script src="{% static 'assets/js/util.js' %}"></script>
+	<script src="{% static 'assets/js/major.js' %}"></script>
+	<script>
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+	return new bootstrap.Tooltip(tooltipTriggerEl)
+	})
+	</script>
+	{% block js %}
+{	% endblock %}
+	</body>
+</html>
