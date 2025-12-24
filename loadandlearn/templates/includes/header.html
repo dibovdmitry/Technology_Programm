@@ -1,0 +1,43 @@
+
+{% load static %}
+
+<div id="header">
+    <div class="inner">
+        <!-- Logo -->
+        <a href="{% url 'studies_check:home' %}" class="logo">
+            <span class="symbol"><img src="{% static 'images/logo.png' %}" alt="" /></span><span class="title">TileMarket</span>
+        </a>
+        <!-- Nav -->
+        <nav>
+            <ul>
+                <li><a href="#menu">Меню</a></li>
+            </ul>
+            <br>
+            <ul class="actions">
+                <li>
+                    <a href="{% url 'cart:cart' %}">
+                    Корзина</a>
+                </li>
+            </ul>
+            <ul class="actions">
+                <li>
+                    <br>
+                    <a href="{% url 'users:profile' %}">
+                    Профиль</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+<!-- Menu -->
+<nav id="menu">
+    <h2>Меню</h2>
+    <ul>
+        <li><a href="{% url 'studies_check:tag_list' %}">Аудитории</a></li>
+        {% for tag in page_obj %}
+        <li><a href="{% url 'studies_check:tag_details' tag.slug %}">{{ tag.name }}</a></li>
+        {% endfor %}
+        <li><a href="{% url 'about:about_project' %}">О сайте</a></li>
+        <li><a href="{% url 'feedback:feedback_feedba' %}">Обратная связь</a></li>
+    </ul>
+</nav>
